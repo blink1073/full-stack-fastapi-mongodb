@@ -6,6 +6,10 @@ on:
       - master
   pull_request:
 
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,7 +36,7 @@ jobs:
       - run: docker compose down -v --remove-orphans
       - run: docker compose up -d
       - name: Run tests
-        run: docker compose exec -T backend bash /app/tests-start.sh "Coverage for ${{ github.sha }}"
+        run: docker compose exec -T backend bash /app/tests-start.sh
       - run: docker compose down -v --remove-orphans
 
       - name: Lint
