@@ -10,9 +10,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
-        run:
-          shell: bash
-          working-directory: ./example
+      run:
+        shell: bash
+        working-directory: ./example
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,19 +28,20 @@ jobs:
           pip install cookiecutter
           cookiecutter . --no-input project_name="example"
 
-      - name: Lint
-        run: |
-            cd backend/app
-            pip install -e ".[checks]"
-            # TODO address lint
-            # bash scripts/lint.sh
-
       - run: docker compose build
       - run: docker compose down -v --remove-orphans
       - run: docker compose up -d
       - name: Run tests
         run: docker compose exec -T backend bash /app/tests-start.sh "Coverage for ${{ github.sha }}"
       - run: docker compose down -v --remove-orphans
+
+      - name: Lint
+        run: |
+          cd backend/app
+          pip install -e ".[checks]"
+          bash scripts/format-imports.sh
+          bash scripts/lint.sh
+
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
